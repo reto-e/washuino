@@ -1,20 +1,25 @@
+#include <CayenneMQTTMKR1000.h>
+#include "config.h"
 
-char im[128], data[128];                // used for fft
+// https://www.youtube.com/watch?v=5RmQJtE61zE&t=311s
+// https://www.instructables.com/id/Arduino-Frequency-Detection/
+// https://www.youtube.com/watch?v=jCkrgSbVNBs
+// wiring the module: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-agc-electret-microphone-amplifier-max9814.pdf
+// https://github.com/myDevicesIoT/Cayenne-MQTT-Arduino/blob/master/examples/Basics/SendData/SendData.ino
+
+#define RETO_CHANNEL 1
+
+
 int mic_val; // value from mic
-int distance[5]; // look up how to set up array
+int distance[5]; // array for distances between sounds
 int trigger_volume; // if a sound is louder then this it starts the pattern watching loop
 int threshold = 20;
+bool goIntoLoop = false;
+bool messageSent = false;
 
 unsigned long initial_millis;
 unsigned long a_millis;
 unsigned long b_millis;
-
-// https://www.youtube.com/watch?v=5RmQJtE61zE&t=311s
-
-// https://www.instructables.com/id/Arduino-Frequency-Detection/
-
-// https://www.youtube.com/watch?v=jCkrgSbVNBs
-//
 
 bool checkForDingDong(int distance[]) {
   bool isDingDong = false;
@@ -53,24 +58,48 @@ void listenToLoudSounds() {
 }
 
 
+
+//-------------------------------------------------
+//   Setup
+//-------------------------------------------------
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  Cayenne.begin(username, password, clientID, ssid, wifiPassword);
 
   trigger_volume = 500;
 
-  // wiring the module: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-agc-electret-microphone-amplifier-max9814.pdf
+  
 }
 
+//-------------------------------------------------
+//   Loop
+//-------------------------------------------------
 void loop() {
-
+  
   listenToLoudSounds();
-
-  if (checkForDingDong(distance)) Serial.println("Ding Dong erkannt");
+  
+  if (checkForDingDong(distance)) {
+    goIntoLoop = true;
+  }
 
   // reset distance values to 0
   for (int i = 0; i < 5; i++ ) {
     distance[i] = 0;
   }
 
+  if(goIntoLoop) {
+    Cayenne.loop();
+  }
+
+}
+
+CAYENNE_OUT(RETO_CHANNEL)
+{
+  if(messageSent == false) {
+    Cayenne.virtualWrite(RETO_CHANNEL, 1);
+    messageSent = true;
+  }
+  
 }
