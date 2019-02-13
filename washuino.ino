@@ -14,59 +14,63 @@ unsigned long b_millis;
 // https://www.instructables.com/id/Arduino-Frequency-Detection/
 
 // https://www.youtube.com/watch?v=jCkrgSbVNBs
-// 
+//
 
 bool checkForDingDong(int distance[]) {
   bool isDingDong = false;
-  if (distance[0] > 400-threshold && distance[0] < 400+threshold &&
-      distance[1] > 400-threshold && distance[1] < 400+threshold &&
-      distance[2] > 1200-threshold && distance[2] < 1200+threshold &&
-      distance[3] > 400-threshold && distance[3] < 400+threshold &&
-      distance[4] > 400-threshold && distance[4] < 400+threshold) isDingDong = true;
-      return isDingDong;
+  if (distance[0] > 400 - threshold && distance[0] < 400 + threshold &&
+      distance[1] > 400 - threshold && distance[1] < 400 + threshold &&
+      distance[2] > 1200 - threshold && distance[2] < 1200 + threshold &&
+      distance[3] > 400 - threshold && distance[3] < 400 + threshold &&
+      distance[4] > 400 - threshold && distance[4] < 400 + threshold) isDingDong = true;
+  return isDingDong;
 }
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-
-  trigger_volume = 500;
- 
-// wiring the module: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-agc-electret-microphone-amplifier-max9814.pdf
-}
-
-void loop() {
-  //----------------------------------------
-  // Variante peaks zaehlen
-  //---------------------------------------
-  
+void listenToLoudSounds() {
   mic_val = analogRead(A0);
-  if(mic_val > trigger_volume) {
+  if (mic_val > trigger_volume) {
     initial_millis = millis();
     a_millis = millis();
     int i = 0;
-    while(millis() - initial_millis < 3000) {
+    while (millis() - initial_millis < 3000) {
       mic_val = analogRead(A0);
 
       // If there is another loud sound at least 200 milliseconds later
-      if(mic_val > trigger_volume && millis() - a_millis > 200) {
+      if (mic_val > trigger_volume && millis() - a_millis > 200) {
         distance[i] = millis() - a_millis;
         a_millis = millis();
-        if (i < 4) { i++; }
-        } 
+        if (i < 4) {
+          i++;
+        }
+      }
     }
     Serial.println(distance[0]);
     Serial.println(distance[1]);
     Serial.println(distance[2]);
     Serial.println(distance[3]);
     Serial.println(distance[4]);
-    
   }
-  if(checkForDingDong(distance)) Serial.println("Ding Dong erkannt");
+}
+
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+
+  trigger_volume = 500;
+
+  // wiring the module: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-agc-electret-microphone-amplifier-max9814.pdf
+}
+
+void loop() {
+
+  listenToLoudSounds();
+
+  if (checkForDingDong(distance)) Serial.println("Ding Dong erkannt");
 
   // reset distance values to 0
-    for (int i = 0; i < 5; i++ ) {
-      distance[i] = 0;
-      }
-  
- }
+  for (int i = 0; i < 5; i++ ) {
+    distance[i] = 0;
+  }
+
+}
