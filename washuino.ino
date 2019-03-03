@@ -27,7 +27,6 @@ void setup() {
   Cayenne.begin(username, password, clientID, ssid, wifiPassword);  // comment out for debugging
 
   trigger_value = 30;
-
   
 }
 
@@ -47,7 +46,7 @@ void loop() {
   Serial.println(flat_val);
   delay(20);
 
-  val_sum = 0;
+  val_sum = 0;  // set sum to 0 again for next loop
   
   if(flat_val > trigger_value) {
     goIntoLoop = true;
