@@ -16,10 +16,10 @@ int channel = 0;  // channel for receiver of sms
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+//  Serial.begin(9600);
   Cayenne.begin(username, password, clientID, ssid, wifiPassword);  // comment out for debugging
   pinMode(6, OUTPUT);  // led pin
-  trigger_value = 500;
+  trigger_value = 300;
   
   
 }
@@ -37,8 +37,8 @@ void loop() {
   float flat_val = val_sum/10;
   
   
-  Serial.println(flat_val);
-  delay(20);
+//  Serial.println(flat_val);
+//  delay(20);
 
   val_sum = 0;  // set sum to 0 again for next loop
   
