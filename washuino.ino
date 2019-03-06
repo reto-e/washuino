@@ -1,20 +1,13 @@
 #include <CayenneMQTTMKR1000.h>
 #include "config.h"
 
-// https://www.youtube.com/watch?v=5RmQJtE61zE&t=311s
-// https://www.instructables.com/id/Arduino-Frequency-Detection/
-// https://www.youtube.com/watch?v=jCkrgSbVNBs
-// wiring the module: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-agc-electret-microphone-amplifier-max9814.pdf
-// https://github.com/myDevicesIoT/Cayenne-MQTT-Arduino/blob/master/examples/Basics/SendData/SendData.ino
-
-#define RETO_CHANNEL 1
-
-
 int ldr_val; // value from light dependent resistor (ldr)
 int val_sum; //
 int trigger_value; // if a sound is louder then this it starts the pattern watching loop
 bool goIntoLoop = false;
 bool messageSent = false;
+int channel = 0;  // channel for receiver of sms
+// setup 
 
 
 //-------------------------------------------------
@@ -25,8 +18,9 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Cayenne.begin(username, password, clientID, ssid, wifiPassword);  // comment out for debugging
-
-  trigger_value = 30;
+  pinMode(6, OUTPUT);  // led pin
+  trigger_value = 500;
+  
   
 }
 
@@ -49,19 +43,33 @@ void loop() {
   val_sum = 0;  // set sum to 0 again for next loop
   
   if(flat_val > trigger_value) {
+    digitalWrite(6, HIGH); // turn LED on
     goIntoLoop = true;
+  }
+  else {
+    digitalWrite(6, LOW);  // turn LED off
   }
   
   if(goIntoLoop) {
+    int channel_val = analogRead(A1);
+    if(channel_val < 25)                      { channel = 1; } //reto
+    if(channel_val > 25 && channel_val < 50)  { channel = 2; } // iris
+    if(channel_val > 120 && channel_val < 340)  { channel = 3; } // Markus
+    if(channel_val > 550 && channel_val < 720){ channel = 4; } // Martin
+    if(channel_val > 870 && channel_val < 980){ channel = 5; } // Chrigi
+    if(channel_val > 900 )                    { channel = 0; } // kein sms
+    
+//    Serial.print("Channel value: ");
+//    Serial.println(channel_val);
     Cayenne.loop();  // comment out for debugging
   }
   
 }
 
-CAYENNE_OUT(RETO_CHANNEL)
+CAYENNE_OUT_DEFAULT()
 {
-  if(messageSent == false) {
-    Cayenne.virtualWrite(RETO_CHANNEL, 1);
+  if(messageSent == false && channel > 0) {
+    Cayenne.virtualWrite(channel, 1);
     messageSent = true;
   }
   
