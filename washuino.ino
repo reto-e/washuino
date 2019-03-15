@@ -7,7 +7,19 @@ int trigger_value; // if a sound is louder then this it starts the pattern watch
 bool goIntoLoop = false;
 bool messageSent = false;
 int channel = 0;  // channel for receiver of sms
-// setup 
+
+//-------------------------------------------------
+//   readChannel
+//-------------------------------------------------
+void readChannel() {
+  int channel_val = analogRead(A1);
+  if(channel_val < 25)                        { channel = 1; } //reto
+  if(channel_val > 25 && channel_val < 50)    { channel = 2; } // iris
+  if(channel_val > 120 && channel_val < 340)  { channel = 3; } // Markus
+  if(channel_val > 550 && channel_val < 720)  { channel = 4; } // Martin
+  if(channel_val > 870 && channel_val < 980)  { channel = 5; } // Chrigi
+  if(channel_val > 960 )                      { channel = 0; } // kein sms
+}
 
 
 //-------------------------------------------------
@@ -20,8 +32,7 @@ void setup() {
   Cayenne.begin(username, password, clientID, ssid, wifiPassword);  // comment out for debugging
   pinMode(6, OUTPUT);  // led pin
   trigger_value = 300;
-  
-  
+ 
 }
 
 //-------------------------------------------------
@@ -44,6 +55,7 @@ void loop() {
   
   if(flat_val > trigger_value) {
     digitalWrite(6, HIGH); // turn LED on
+    readChannel();
     if (channel > 0) {
       goIntoLoop = true;
       }
@@ -53,16 +65,9 @@ void loop() {
   }
   
   if(goIntoLoop) {
-    int channel_val = analogRead(A1);
-    if(channel_val < 25)                      { channel = 1; } //reto
-    if(channel_val > 25 && channel_val < 50)  { channel = 2; } // iris
-    if(channel_val > 120 && channel_val < 340)  { channel = 3; } // Markus
-    if(channel_val > 550 && channel_val < 720){ channel = 4; } // Martin
-    if(channel_val > 870 && channel_val < 980){ channel = 5; } // Chrigi
-    if(channel_val > 900 )                    { channel = 0; } // kein sms
-    
-//    Serial.print("Channel value: ");
-//    Serial.println(channel_val);
+  //  Serial.print("Channel value: ");
+  //  Serial.println(channel);
+    readChannel();    // read channel again to have latest position of slider
     Cayenne.loop();  // comment out for debugging
   }
   
