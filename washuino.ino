@@ -44,7 +44,9 @@ void loop() {
   
   if(flat_val > trigger_value) {
     digitalWrite(6, HIGH); // turn LED on
-    goIntoLoop = true;
+    if (channel > 0) {
+      goIntoLoop = true;
+      }
   }
   else {
     digitalWrite(6, LOW);  // turn LED off
@@ -68,7 +70,7 @@ void loop() {
 
 CAYENNE_OUT_DEFAULT()
 {
-  if(messageSent == false && channel > 0) {
+  if(messageSent == false) {
     Cayenne.virtualWrite(channel, 1);
     messageSent = true;
   }
