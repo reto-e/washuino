@@ -13,10 +13,11 @@ int channel = 0;  // channel for receiver of sms
 //-------------------------------------------------
 void readChannel() {
   int channel_val = analogRead(A1);
+//  Serial.println(channel_val);
   if(channel_val < 25)                        { channel = 1; } //reto
   if(channel_val > 25 && channel_val < 50)    { channel = 2; } // iris
-  if(channel_val > 120 && channel_val < 340)  { channel = 3; } // Markus
-  if(channel_val > 550 && channel_val < 720)  { channel = 4; } // Martin
+  if(channel_val > 120 && channel_val < 420)  { channel = 3; } // Markus
+  if(channel_val > 550 && channel_val < 800)  { channel = 4; } // Martin
   if(channel_val > 870 && channel_val < 980)  { channel = 5; } // Chrigi
   if(channel_val > 960 )                      { channel = 0; } // kein sms
 }
@@ -65,8 +66,8 @@ void loop() {
   }
   
   if(goIntoLoop) {
-  //  Serial.print("Channel value: ");
-  //  Serial.println(channel);
+//    Serial.print("Channel value: ");
+//    Serial.println(channel);
     readChannel();    // read channel again to have latest position of slider
     Cayenne.loop();  // comment out for debugging
   }
